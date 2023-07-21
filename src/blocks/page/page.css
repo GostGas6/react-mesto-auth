@@ -1,0 +1,21 @@
+.page {
+    max-width: 1280px;
+    position: relative;
+    background-color: black;
+    margin: 0 auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    color: #fff;
+    align-items: center;
+    font-family: 'Inter', 'Arial', sans-serif;
+}
+
+@media screen and (max-width: 1280px) {
+    .page {
+        align-items: flex-start;
+    }
+}
