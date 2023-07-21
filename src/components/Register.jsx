@@ -1,19 +1,19 @@
 import Auth from './Auth.jsx';
-import { useState } from 'react';
+import useValidate from '../utils/useValidate.jsx';
+import { Link } from 'react-router-dom';
 
 export default function Register(
     {
         onRegistration,
         title,
         buttonTitle,
-        tip
+        isLoading
     }
 ) {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const { values, handleChange, errors, isValid, resetForm } = useValidate()
 
     function handleSubmit() {
-        onRegistration(email, password)
+        onRegistration(values.email, values.password)
     }
 
     return (
@@ -21,25 +21,53 @@ export default function Register(
             onSubmit={handleSubmit}
             title={title}
             buttonTitle={buttonTitle}
+            isValid={isValid}
+            isLoading={isLoading}
             tip={tip}
         >
-            <input
-                className='auth__input'
-                id='registration_email'
-                type='text'
-                name='email'
-                placeholder='Email'
-                value={email}
-                onChange={event => setEmail(event.target.value)}
-            />
-            <input
-                className='auth__input'
-                type='text'
-                name='registration_password'
-                placeholder='Пароль'
-                value={password}
-                onChange={event => setPassword(event.target.value)}
-            />
+            <label className="popup__input-section">
+                <input
+                    className="popup__input popup__input_type_auth"
+                    id="registerEmail"
+                    type="email"
+                    name="email"
+                    placeholder="Email"
+                    value={values.email || ''}
+                    required={true}
+                    onChange={handleChange}
+                />
+                <span
+                    className={`popup__error ${isValid ? '' : 'popup__error_active'}`}
+                >
+                    {errors.email}
+                </span>
+            </label>
+            <label className="popup__input-section">
+                <input
+                    className="popup__input popup__input_type_auth"
+                    id="registerPassword"
+                    type="password"
+                    name="password"
+                    placeholder="Пароль"
+                    value={values.password || ''}
+                    required={true}
+                    onChange={handleChange}
+                />
+                <span
+                    className={`popup__error ${isValid ? '' : 'popup__error_active'}`}
+                >
+                    {errors.password}
+                </span>
+            </label>
+            <p className={'auth__tip'}>
+                Уже зарегистрированы?&nbsp;
+                <Link
+                    className='auth__link'
+                    to='/sign-in'
+                >
+                    Войти
+                </Link>
+            </p>
         </Auth>
     )
 }

@@ -10,46 +10,67 @@ import EditProfilePopup from './EditProfilePopup.jsx';
 import EditAvatarPopup from './EditAvatarPopup.jsx';
 import AddMestoPopup from './AddMestoPopup.jsx';
 import ConfirmMestoDeletePopup from './ConfirmMestoDeletePopup.jsx';
-import { Link, Route, Switch, useHistory } from 'react-router-dom';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute.jsx';
 import Register from './Register.jsx';
 import Login from './Login.jsx';
 import InfoTooltipOpen from './InfoTooltipOpen.jsx';
 import auth from '../utils/auth.js';
+import successImage from '../images/tooltip-success.svg';
+import failImage from '../images/tooltip-fail.svg'
 
 function App() {
   const [isUpdateAvatarPopupOpen, setIsUpdateAvatarPopupOpen] = useState(false);
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
   const [isAddMestoPopupOpen, setIsAddMestoPopupOpen] = useState(false);
   const [isDeleteMestoPopupOpen, setIsDeleteMestoPopupOpen] = useState(false);
-  const [isInfoTooltipOpen, setIsInfoTooltipOpen] = useState(false);
 
   const [selectedCard, setSelectedCard] = useState(null);
   const [user, setUser] = useState(null);
   const [initialCards, setInitialCards] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [cardToDelete, setCardToDelete] = useState(null);
-  const [isAuthSuccessful, setIsAuthSuccessful] = useState(false);
+
+  const [isDeleteMestoLoading, setIsDeleteMestoLoading] = useState(false)
+  const [isProfileUpdateLoading, setIsProfileUpdateLoading] = useState(false)
+  const [isAvatarUpdateLoading, setIsAvatarUpdateLoading] = useState(false)
+  const [isMestoAddLoading, setIsMestoAddLoading] = useState(false)
+  const [isRegistrationLoading, setIsRegistrationLoading] = useState(false)
+  const [isLoginLoading, setIsLoginLoading] = useState(false)
+
+  const [tooltipInfo, setTooltipInfo] = useState({
+    isOpen: false,
+    image: null,
+    alt: '',
+    title: ''
+  })
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userEmail, setUserEmail] = useState('')
+  const navigate = useNavigate();
 
   useEffect(() => {
+    if (!isLoggedIn) {
+      return
+    }
     Promise.all([Api.getUserInfo(), Api.getCard()])
       .then(([userInfo, cards]) => {
         setUser(userInfo);
         setInitialCards(cards);
       })
       .catch(console.log)
-  }, [])
-
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userEmail, setUserEmail] = useState(null);
-  const history = useHistory();
+  }, [isLoggedIn])
 
   function closeAllPopups() {
     setIsUpdateAvatarPopupOpen(false);
     setIsEditProfilePopupOpen(false);
     setIsAddMestoPopupOpen(false);
     setIsDeleteMestoPopupOpen(false);
-    setIsInfoTooltipOpen(false);
+    // setIsInfoTooltipOpen(false);
+    setTooltipInfo({
+      isOpen: false,
+      image: '',
+      title: ''
+    })
     setSelectedCard(null)
   }
 
@@ -87,83 +108,97 @@ function App() {
   }
 
   function handleDeleteMesto(card) {
-    setIsLoading(true)
+    setIsDeleteMestoLoading(true)
     Api.deleteCard(card._id)
       .then(() => {
         setInitialCards((state) => state.filter(c => c._id !== (card._id)));
         closeAllPopups()
       })
       .catch(console.log)
-      .finally(() => setIsLoading(false))
+      .finally(() => setIsDeleteMestoLoading(false))
   }
 
   function handleProfileUpdate(info) {
-    setIsLoading(true)
+    setIsProfileUpdateLoading(true)
     Api.setUserInfo(info)
       .then(userInfo => {
         setUser(userInfo);
         closeAllPopups()
       })
       .catch(console.log)
-      .finally(() => setIsLoading(false))
+      .finally(() => setIsProfileUpdateLoading(false))
   }
 
   function handleAvatarUpdate(info) {
-    setIsLoading(true)
+    setIsAvatarUpdateLoading(true)
     Api.setUserAvatar(info)
-      .then(avatar => {
-        setUser(avatar);
+      .then(userInfo => {
+        setUser(userInfo);
         closeAllPopups()
       })
       .catch(console.log)
-      .finally(() => setIsLoading(false))
+      .finally(() => setIsAvatarUpdateLoading(false))
   }
 
   function handleMestoAdd(data) {
-    setIsLoading(true)
+    setIsMestoAddLoading(true)
     Api.createMesto(data)
       .then((card) => {
         setInitialCards([card, ...initialCards]);
         closeAllPopups()
       })
       .catch(console.log)
-      .finally(() => setIsLoading(false))
+      .finally(() => setIsMestoAddLoading(false))
   }
 
   function handleRegistration(email, password) {
-    auth.signup(email, password)
-      .then((response) => {
-        setIsAuthSuccessful(true);
-        setIsInfoTooltipOpen(true);
-        history.push('/sign-in');
+    setIsRegistrationLoading(true);
+    auth.signUp(email, password)
+      .then(() => {
+        setTooltipInfo({
+          isOpen: true,
+          image: successImage,
+          title: 'Вы успешно зарегистрировались!'
+        })
+        navigate('/sign-in');
       })
       .catch((error) => {
-        setIsAuthSuccessful(false);
-        setIsInfoTooltipOpen(true);
+        setTooltipInfo({
+          isOpen: true,
+          image: failImage,
+          title: 'Что-то пошло не так! Попробуйте ещё раз.'
+        })
         console.log(error)
       })
+      .finally(() => setIsRegistrationLoading(false))
   }
 
   function handleLogin(email, password) {
-    auth.signin(email, password)
+    setIsLoginLoading(true);
+    auth.signIn(email, password)
       .then(({ token }) => {
         if (token) {
           localStorage.setItem('token', token);
           setIsLoggedIn(true);
-          history.push('/');
+          setUserEmail(email);
+          navigate('/');
         }
       })
       .catch((error) => {
-        setIsAuthSuccessful(false);
-        setIsInfoTooltipOpen(true);
+        setTooltipInfo({
+          isOpen: true,
+          image: failImage,
+          title: 'Что-то пошло не так! Попробуйте ещё раз.'
+        })
         console.log(error)
       })
+      .finally(() => setIsLoading(false))
   }
 
   function handleSignOut() {
     localStorage.removeItem('token');
     setIsLoggedIn(false);
-    history.push('/sign-in')
+    navigate('/sign-in')
   }
 
   useEffect(() => {
@@ -173,11 +208,11 @@ function App() {
         .then((response) => {
           setIsLoggedIn(true);
           setUserEmail(response.data.email);
-          history.push('/');
+          navigate('/');
         })
         .catch(console.log)
     }
-  });
+  }, []);
 
   return (
     <CurrentUserContext.Provider value={user}>
@@ -188,76 +223,72 @@ function App() {
           profileEmail={userEmail}
           onSignOut={handleSignOut}
         />
-        <Switch>
+        <Routes>
           <Route
             path="/sign-in"
-          >
-            <Login
-              onLogin={handleLogin}
-              title={'Вход'}
-              buttonTitle={'Войти'}
-            />
-          </Route>
+            element={
+              <Login
+                onLogin={handleLogin}
+                title={'Вход'}
+                buttonTitle={'Войти'}
+                isLoading={isLoginLoading}
+              />
+            }
+          />
           <Route
             path="/sign-up"
-          >
-            <Register
-              onRegistration={handleRegistration}
-              title={'Регистрация'}
-              buttonTitle={'Зарегистрироваться'}
-              tip={
-                <p className={'auth__tip'}>
-                  Уже зарегистрированы?&nbsp;
-                  <Link
-                    className='auth__link'
-                    to='/sign-in'
-                  >
-                    Войти
-                  </Link>
-                </p>
-              }
-            />
-          </Route>
+            element={
+              <Register
+                onRegistration={handleRegistration}
+                title={'Регистрация'}
+                buttonTitle={'Зарегистрироваться'}
+                isLoading={isRegistrationLoading}
+              />
+            }
+          />
           <Route
-            path="/"
-          >
-            <ProtectedRoute
-              component={Main}
-              isloggedIn={isLoggedIn}
-              onUserAvatarEdit={handleUpdateAvatarPopup}
-              onUserProfileEdit={handleEditProfilePopup}
-              onMestoAdd={handleAddMestoPopup}
-              onMestoDelete={handleDeleteConfirm}
-              onMestoShow={setSelectedCard}
-              onMestoLike={handleLikeClick}
-              onMestoDislike={handleDislikeClick}
-              cards={initialCards}
-            />
-          </Route>
-        </Switch>
+            path="/*"
+            element={
+              <ProtectedRoute
+                component={Main}
+                isLoggedIn={isLoggedIn}
+                onUserAvatarEdit={handleUpdateAvatarPopup}
+                onUserProfileEdit={handleEditProfilePopup}
+                onMestoAdd={handleAddMestoPopup}
+                onMestoDelete={handleDeleteConfirm}
+                onMestoShow={setSelectedCard}
+                onMestoLike={handleLikeClick}
+                onMestoDislike={handleDislikeClick}
+                cards={initialCards}
+              />
+            }
+          />
+        </Routes>
         <Footer />
         <EditAvatarPopup
           isOpen={isUpdateAvatarPopupOpen}
           onClose={closeAllPopups}
           onUpdate={handleAvatarUpdate}
+          processStatus={isAvatarUpdateLoading}
         />
         <EditProfilePopup
           isOpen={isEditProfilePopupOpen}
           onClose={closeAllPopups}
           onUpdate={handleProfileUpdate}
+          processStatus={isProfileUpdateLoading}
         />
         <AddMestoPopup
           isOpen={isAddMestoPopupOpen}
           onClose={closeAllPopups}
           onSubmit={handleMestoAdd}
-          processStatus={isLoading}
+          processStatus={isMestoAddLoading}
         />
         <ConfirmMestoDeletePopup
           isOpen={isDeleteMestoPopupOpen}
           onClose={closeAllPopups}
           onSubmit={handleDeleteMesto}
           card={cardToDelete}
-          processStatus={isLoading}
+          processStatus={isDeleteMestoLoading}
         />
         <ImagePopup
           popupType={'show-mesto'}
@@ -267,60 +298,10 @@ function App() {
         <InfoTooltipOpen
           onClose={closeAllPopups}
           popupType='infoTooltip'
-          isOpen={isInfoTooltipOpen}
-          isSuccess={isAuthSuccessful}
+          info={tooltipInfo}
         />
       </div>
     </ CurrentUserContext.Provider>);
-
-  // return (
-  //   <CurrentUserContext.Provider value={user}>
-  //     <Header />
-  //     <Main
-  //       onUserAvatarEdit={handleUpdateAvatarPopup}
-  //       onUserProfileEdit={handleEditProfilePopup}
-  //       onMestoAdd={handleAddMestoPopup}
-  //       onMestoDelete={handleDeleteConfirm}
-  //       onMestoShow={setSelectedCard}
-  //       onMestoLike={handleLikeClick}
-  //       onMestoDislike={handleDislikeClick}
-  //       cards={initialCards}
-  //     />
-  //     <Footer />
-  //     <EditAvatarPopup
-  //       isOpen={isUpdateAvatarPopupOpen}
-  //       onClose={closeAllPopups}
-  //       onUpdate={handleAvatarUpdate}
-  //     />
-
-  //     <EditProfilePopup
-  //       isOpen={isEditProfilePopupOpen}
-  //       onClose={closeAllPopups}
-  //       onUpdate={handleProfileUpdate}
-  //     />
-
-  //     <AddMestoPopup
-  //       isOpen={isAddMestoPopupOpen}
-  //       onClose={closeAllPopups}
-  //       onSubmit={handleMestoAdd}
-  //       processStatus={isLoading}
-  //     />
-
-  //     <ConfirmMestoDeletePopup
-  //       isOpen={isDeleteMestoPopupOpen}
-  //       onClose={closeAllPopups}
-  //       onSubmit={handleDeleteMesto}
-  //       card={cardToDelete}
-  //       processStatus={isLoading}
-  //     />
-
-  //     <ImagePopup
-  //       popupType={'popup_image '}
-  //       card={selectedCard}
-  //       onClose={closeAllPopups}
-  //     />
-  //   </CurrentUserContext.Provider>
-  // );
 }
 
 export default App;

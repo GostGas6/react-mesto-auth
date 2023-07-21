@@ -1,35 +1,53 @@
 import PopupWithForm from './PopupWithForm.jsx';
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
+import useValidate from '../utils/useValidate.jsx';
 
 
-export default function EditAvatarPopup({ isOpen, onClose, onUpdate, processStatus }) {
-    const avatar = useRef('#');
+export default function EditAvatarPopup(
+    {
+        isOpen,
+        onClose,
+        onUpdate,
+        processStatus
+    }
+) {
+    const { values, handleChange, errors, isValid, resetForm, setValues } = useValidate()
 
     useEffect(() => {
-        avatar.current.value = ''
+        setValues({
+            avatar: ''
+        })
+        if (!isOpen) {
+            resetForm();
+        }
     }, [isOpen])
 
     function handleSubmit(event) {
         event.preventDefault();
         onUpdate({
-            avatar: avatar.current.value
-        })
+            avatar: values.avatar
+        });
     }
 
     return (
         <PopupWithForm
             popupType={'update-avatar'}
             popupTitle={'Обновить аватар'}
-            submitText={processStatus ? 'Обновление' :'Обновить'}
+            submitText={processStatus ? 'Обновление' : 'Обновить'}
             isOpen={isOpen}
             onClose={onClose}
+            isValid={isValid}
             onSubmit={handleSubmit}
         >
 
             <div className="popup__input-section">
                 <input id="avatar-link" className="popup__input" type="url" name="link" placeholder="Ссылка на картинку"
-                    required minLength="2" ref={avatar}/>
-                <span className="popup__error popup__error_active"></span>
+                    required minLength="2" ref={values.avatar || ''} onChange={handleChange} />
+                <span
+                    className={`popup__error ${isValid ? '' : 'popup__error_active'}`}
+                >
+                    {errors.avatar}
+                </span>
             </div>
 
         </PopupWithForm>

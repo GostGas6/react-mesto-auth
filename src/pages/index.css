@@ -55,3 +55,7 @@
 @import url(../blocks/header/__menu/header__menu.css);
 @import url(../blocks/header/__profile-info/header__profile-info.css);
 @import url(../blocks/header/__sighout-button/header__signout-button.css);
+@import url(../blocks/popup/_type/popup_type_auth.css);
+@import url(../blocks/popup/__input/_type/popup__title_type_auth.css);
+@import url(../blocks/popup/__input/_type/popup__input_type_auth.css);
+@import url(../blocks/poup/__input/_type/popup__submit-button_type_auth.css);

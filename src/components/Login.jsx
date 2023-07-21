@@ -1,18 +1,18 @@
 import Auth from './Auth.jsx';
-import { useState } from 'react';
+import useValidate from '../utils/useValidate.jsx';
 
 export default function Login(
     {
         onLogin,
         title,
         buttonTitle,
+        isLoading
     }
 ) {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const { values, handleChange, errors, isValid } = useValidate()
 
     function handleSubmit() {
-        onLogin(email, password)
+        onLogin(values.email, values.password)
     }
 
     return (
@@ -20,25 +20,43 @@ export default function Login(
             onSubmit={handleSubmit}
             title={title}
             buttonTitle={buttonTitle}
+            isValid={isValid}
+            isLoading={isLoading}
         >
-            <input
-                className='auth__input'
-                id='signin_email'
-                type='text'
-                name='email'
-                placeholder='Email'
-                value={email}
-                onChange={event => setEmail(event.target.value)}
-            />
-            <input
-                className='auth__input'
-                type='text'
-                name='signin_password'
-                placeholder='Пароль'
-                value={password}
-                onChange={event => setPassword(event.target.value)}
-            />
-
+            <label className="popup__input-section">
+                <input
+                    className="popup__input popup__input_type_auth"
+                    id="loginEmail"
+                    type="email"
+                    name="email"
+                    placeholder="Email"
+                    value={values.email || ''}
+                    required={true}
+                    onChange={handleChange}
+                />
+                <span
+                    className={`popup__error ${isValid ? '' : 'popup__error_active'}`}
+                >
+                    {errors.email}
+                </span>
+            </label>
+            <label className="popup__input-section">
+                <input
+                    className="popup__input popup__input_type_auth"
+                    id="loginPassword"
+                    type="password"
+                    name="password"
+                    placeholder="Пароль"
+                    value={values.password || ''}
+                    required={true}
+                    onChange={handleChange}
+                />
+                <span
+                    className={`popup__error ${isValid ? '' : 'popup__error_active'}`}
+                >
+                    {errors.password}
+                </span>
+            </label>
         </Auth>
     )
 }

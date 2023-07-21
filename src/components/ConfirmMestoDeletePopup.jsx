@@ -16,6 +16,7 @@ export default function ConfirmMestoDeletePopup(
             card={card}
             isOpen={isOpen}
             onClose={onClose}
+            isValid={true}
             onSubmit={handleSubmit}
         />
     )

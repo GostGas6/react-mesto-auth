@@ -1,17 +1,13 @@
 import useCloseOnEsc from '../utils/useCloseOnEsc.jsx';
-import successImage from '../images/tooltip-success.svg';
-import failImage from '../images/tooltip-fail.svg'
 
 export default function InfoTooltipOpen(
     {
-        isOpen,
+        info: { isOpen, image, title },
         onClose,
-        popupType,
-        isSuccess
+        popupType
     }
 ) {
-
-    useCloseOnEsc({ isOpen, onClose })
+    useCloseOnEsc({ isOpen, onClose });
 
     function handleClose(event) {
         if (event.target.classList.contains('popup_opened')
@@ -24,7 +20,10 @@ export default function InfoTooltipOpen(
         <div
             className={
                 `popup popup_type_${popupType} 
-      ${isOpen && 'popup_opened'}`
+                ${isOpen
+                    ? 'popup_opened'
+                    : ''
+                }`
             } id="updateAvatar"
             onClick={handleClose}
         >
@@ -37,27 +36,17 @@ export default function InfoTooltipOpen(
                 <div
                     className='popup__tooltip-content'
                 >
-                    <img
-                        className='popup__tooltip-image'
-                        src={
-                            isSuccess
-                                ? successImage
-                                : failImage
-                        }
-                        alt={
-                            isSuccess
-                                ? 'Успешная регистрация, знак галочка'
-                                : 'Регистрация прошла не успешно, знак крестика'
-                        }
-                    />
+                    {image
+                        && <img
+                            className="popup__tooltip-image"
+                            src={image}
+                            alt={title}
+                        />
+                    }
                     <h2
                         className='popup__tooltip-header'
                     >
-                        {
-                            isSuccess
-                                ? 'Вы успешно зарегистрировались!'
-                                : 'Что-то пошло не так! Попробуйте ещё раз.'
-                        }
+                        {title}
                     </h2>
                 </div>
 
