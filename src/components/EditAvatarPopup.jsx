@@ -42,14 +42,13 @@ export default function EditAvatarPopup(
 
             <div className="popup__input-section">
                 <input id="avatar-link" className="popup__input" type="url" name="link" placeholder="Ссылка на картинку"
-                    required minLength="2" ref={values.avatar || ''} onChange={handleChange} />
+                    required minLength="2" value={values.avatar || ''} onChange={handleChange} />
                 <span
                     className={`popup__error ${isValid ? '' : 'popup__error_active'}`}
                 >
                     {errors.avatar}
                 </span>
             </div>
-
         </PopupWithForm>
     )
 }

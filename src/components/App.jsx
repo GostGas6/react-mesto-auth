@@ -192,7 +192,7 @@ function App() {
         })
         console.log(error)
       })
-      .finally(() => setIsLoading(false))
+      .finally(() => setIsLoginLoading(false))
   }
 
   function handleSignOut() {

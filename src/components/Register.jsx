@@ -23,7 +23,6 @@ export default function Register(
             buttonTitle={buttonTitle}
             isValid={isValid}
             isLoading={isLoading}
-            tip={tip}
         >
             <label className="popup__input-section">
                 <input

@@ -22,13 +22,10 @@ export default function useValidate() {
         values,
         errors,
         isValid,
-        handleChange,
-        resetForm,
         setValues,
         setErrors,
         setIsValid,
         handleChange,
-        resetForm,
-        setIsValid
+        resetForm
     }
 }

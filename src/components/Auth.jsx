@@ -28,14 +28,14 @@ export default function Auth(
         <div className='auth'>
             <div className='auth__container'>
                 <form
-                    className='popup popup_type_auth'
+                    className='popup_type_auth'
                     onSubmit={handleSubmit}
                 >
                     <h2 className='popup__title popup__title_type_auth'>{title}</h2>
                     {
                         getFormFieldsByType('label')
                     }
-                    <button className={`popup__button-save popup__submit-button ${isValid ? '' : 'popup__button-save_inactive'}`}
+                    <button className={`popup__button-save popup__submit-button_type_auth ${isValid ? '' : 'popup__button-save_inactive'}`}
                         disabled={!isValid}>
                         {isLoading
                             ? 'Подождите...'
